@@ -141,7 +141,8 @@ func (c *PostController) NewPostHandler(w http.ResponseWriter, r *http.Request) 
 			}
 
 			// Add extra post info
-			post.Author = user
+			post.AuthorId = user.Id
+			post.AuthorName = user.Username
 			post.Created = time.Now()
 			post.Modified = time.Now()
 

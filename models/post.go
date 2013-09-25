@@ -25,17 +25,18 @@ func (pl *PostList) LastPage() int {
 }
 
 type Post struct {
-	Id       string `gorethink:"id,omitempty"`
-	Author   string `gorethink:",omitempty"`
-	Type     string `schema:"type"`
-	Title    string `schema:"title"`
-	Content  string `schema:"content"`
-	Meta     map[string]string
-	Tags     []string
-	Likes    int
-	Dislikes int
-	Created  time.Time
-	Modified time.Time
+	Id         string `gorethink:"id,omitempty"`
+	AuthorId   string
+	AuthorName string
+	Type       string `schema:"type"`
+	Title      string `schema:"title"`
+	Content    string `schema:"content"`
+	Meta       map[string]string
+	Tags       []string
+	Likes      int
+	Dislikes   int
+	Created    time.Time
+	Modified   time.Time
 }
 
 func (p *Post) Score() string {

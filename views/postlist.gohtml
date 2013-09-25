@@ -29,7 +29,7 @@
                         <span class="badge">{{ .Score }}</span>
                     </div>
                     <div class="post-meta media-meta">
-                        <small class="author">By <a href="#">{{ .Author }}</a></small>
+                        <small class="author">By <a href="#">{{ .AuthorName }}</a></small>
                         <small class="published">On <time datetime="{{ .Created }}" pubdate="">{{ .Created }}</time></small>
                         <div class="tags hidden-xs">
                             {{ range .Tags }}

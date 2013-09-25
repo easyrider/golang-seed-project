@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/dancannon/gonews/app"
 	"github.com/dancannon/gonews/controllers"
-	"github.com/dancannon/gonews/util/log"
+	"github.com/dancannon/gonews/lib/log"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"net/http"

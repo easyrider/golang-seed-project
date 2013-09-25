@@ -1,9 +1,9 @@
 package app
 
 import (
+	"github.com/dancannon/gonews/lib/log"
+	"github.com/dancannon/gonews/lib/template"
 	"github.com/dancannon/gonews/repositories"
-	"github.com/dancannon/gonews/util/log"
-	"github.com/dancannon/gonews/util/template"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"

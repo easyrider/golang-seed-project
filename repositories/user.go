@@ -10,14 +10,14 @@ type userRepository struct {
 
 func (repo *userRepository) FindById(id string) (User, error) {
 	var user User
-	err := r.Table("users").Get(id).RunRow(conn).Scan(&user)
+	err := r.Table("users").Get(id).RunRow(session).Scan(&user)
 
 	return user, err
 }
 
 func (repo *userRepository) FindAll() ([]User, error) {
 	var users []User
-	rows, err := r.Table("users").Run(conn)
+	rows, err := r.Table("users").Run(session)
 	if err != nil {
 		return users, err
 	}
@@ -39,14 +39,14 @@ func (repo *userRepository) FindByUsername(username string) (User, error) {
 	var user User
 	query := r.Table("users").GetAllByIndex("Username", username)
 
-	row := query.RunRow(conn)
+	row := query.RunRow(session)
 	err := row.Scan(&user)
 
 	return user, err
 }
 
 func (repo *userRepository) Insert(user User) (User, error) {
-	response, err := r.Table("users").Insert(user).RunWrite(conn)
+	response, err := r.Table("users").Insert(user).RunWrite(session)
 
 	if err != nil {
 		return user, err
@@ -61,9 +61,9 @@ func (repo *userRepository) Insert(user User) (User, error) {
 }
 
 func (repo *userRepository) Delete(id string) error {
-	return r.Table("users").Get(id).Delete().Exec(conn)
+	return r.Table("users").Get(id).Delete().Exec(session)
 }
 
 func (repo *userRepository) DeleteAll() error {
-	return r.Table("users").Delete().Exec(conn)
+	return r.Table("users").Delete().Exec(session)
 }

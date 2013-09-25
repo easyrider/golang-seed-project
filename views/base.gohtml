@@ -40,9 +40,9 @@
 			    <!-- Collect the nav links, forms, and other content for toggling -->
 			    <div class="collapse navbar-collapse navbar-main-collapse">
 			        <ul class="nav navbar-nav">
-			            <li><a href="{{ route .router "top_posts" }}">Top</a></li>
-			            <li><a href="{{ route .router "new_posts" }}">New</a></li>
-                        <li><a href="{{ route .router "submit_post" }}">Submit</a></li>
+			            <li><a href="{{ route .router "posts_list_top" }}">Top</a></li>
+			            <li><a href="{{ route .router "posts_list_new" }}">New</a></li>
+                        <li><a href="{{ route .router "posts_submit" }}">Submit</a></li>
 			        </ul>
 
 			        <form class="navbar-form navbar-left hidden-sm hidden-xs" role="search">
@@ -65,7 +65,9 @@
 	<script src="/js/vendors/jquery.js"></script>
 	<script src="/js/vendors/holder.js"></script>
 	<script src="/js/vendors/jquery.actual.js"></script>
+    <script src="/js/vendors/markdown.js"></script>
 	<script src="/js/bootstrap.js"></script>
 	<script src="/js/combined.js"></script>
+    {{block "scripts_extra"}}{{end}}
 </html>
 {{end}}

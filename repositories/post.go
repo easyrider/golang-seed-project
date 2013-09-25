@@ -10,14 +10,14 @@ type postRepository struct {
 
 func (repo *postRepository) FindById(id string) (Post, error) {
 	var post Post
-	err := r.Table("posts").Get(id).RunRow(conn).Scan(&post)
+	err := r.Table("posts").Get(id).RunRow(session).Scan(&post)
 
 	return post, err
 }
 
 func (repo *postRepository) FindAll() ([]Post, error) {
 	var posts []Post
-	rows, err := r.Table("posts").Run(conn)
+	rows, err := r.Table("posts").Run(session)
 	if err != nil {
 		return posts, err
 	}
@@ -39,7 +39,7 @@ func (repo *postRepository) FindTopByPage(page int, count int) ([]Post, error) {
 	var posts []Post
 	query := r.Table("posts").OrderBy(r.Desc(orderByTop))
 	query = query.Skip((page - 1) * count).Limit(count)
-	rows, err := query.Run(conn)
+	rows, err := query.Run(session)
 	if err != nil {
 		return posts, err
 	}
@@ -61,7 +61,7 @@ func (repo *postRepository) FindNewByPage(page int, count int) ([]Post, error) {
 	var posts []Post
 	query := r.Table("posts").OrderBy(r.Desc(orderByNew))
 	query = query.Skip((page - 1) * count).Limit(count)
-	rows, err := query.Run(conn)
+	rows, err := query.Run(session)
 	if err != nil {
 		return posts, err
 	}
@@ -80,7 +80,7 @@ func (repo *postRepository) FindNewByPage(page int, count int) ([]Post, error) {
 }
 
 func (repo *postRepository) Store(post Post) (Post, error) {
-	response, err := r.Table("posts").Insert(post).RunWrite(conn)
+	response, err := r.Table("posts").Insert(post).RunWrite(session)
 
 	if err != nil {
 		return post, err
@@ -95,9 +95,9 @@ func (repo *postRepository) Store(post Post) (Post, error) {
 }
 
 func (repo *postRepository) Delete(id string) error {
-	return r.Table("posts").Get(id).Delete().Exec(conn)
+	return r.Table("posts").Get(id).Delete().Exec(session)
 }
 
 func (repo *postRepository) DeleteAll() error {
-	return r.Table("posts").Delete().Exec(conn)
+	return r.Table("posts").Delete().Exec(session)
 }

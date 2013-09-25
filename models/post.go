@@ -27,8 +27,9 @@ func (pl *PostList) LastPage() int {
 type Post struct {
 	Id       string `gorethink:"id,omitempty"`
 	Author   string
-	Type     string
-	Title    string
+	Type     string `schema:"type"`
+	Title    string `schema:"title"`
+	Content  string `schema:"content"`
 	Meta     map[string]string
 	Tags     []string
 	Likes    int

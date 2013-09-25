@@ -56,7 +56,8 @@ module.exports = function(grunt) {
           'js/bootstrap/popover.js',
           'js/bootstrap/crollspy.js',
           'js/bootstrap/tab.js',
-          'js/bootstrap/affix.js'
+          'js/bootstrap/affix.js',
+          'js/bootstrap/markdown.js'
         ],
         dest: 'js/bootstrap.js'
       },

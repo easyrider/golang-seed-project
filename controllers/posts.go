@@ -1,16 +1,17 @@
 package controllers
 
 import (
+	"code.google.com/p/go.crypto/bcrypt"
 	"fmt"
 	"github.com/dancannon/gonews/app"
+	"github.com/dancannon/gonews/lib/template"
+	"github.com/dancannon/gonews/lib/validation"
 	"github.com/dancannon/gonews/models"
 	repo "github.com/dancannon/gonews/repositories"
-	"github.com/dancannon/gonews/util/template"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
-	"math/rand"
+	"github.com/gorilla/schema"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -19,10 +20,10 @@ type PostController struct {
 
 func (c *PostController) Init(r *mux.Router) {
 	r.HandleFunc("/", c.TopPostListHandler).Name("homepage")
-	r.HandleFunc("/top", c.TopPostListHandler).Name("top_posts")
-	r.HandleFunc("/new", c.NewPostListHandler).Name("new_posts")
-	r.HandleFunc("/view/{id}", c.PostViewHandler).Name("view_post")
-	r.HandleFunc("/submit", c.NewPostHandler).Name("submit_post")
+	r.HandleFunc("/top", c.TopPostListHandler).Name("posts_list_top")
+	r.HandleFunc("/new", c.NewPostListHandler).Name("posts_list_new")
+	r.HandleFunc("/view/{id}", c.PostViewHandler).Name("posts_view")
+	r.HandleFunc("/submit", c.NewPostHandler).Name("posts_submit")
 }
 
 func (c *PostController) TopPostListHandler(w http.ResponseWriter, r *http.Request) {
@@ -80,24 +81,90 @@ func (c *PostController) PostViewHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (c *PostController) NewPostHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "text/html")
+	// Ensure the user is logged in
+	var user models.User
 
-	repo.Posts.DeleteAll()
-	for i := 0; i < 100; i++ {
-		createdAt := int64(rand.Intn(1378469294-1375790900) + 1375790900)
+	// Get token from session if it exists
+	session, _ := app.Sessions.Get(r, "security")
+	if token, ok := session.Values["token"].(authToken); !ok {
+		http.Error(w, "Token invalid", http.StatusForbidden)
+		return
+	} else {
+		var err error
 
-		post := models.Post{
-			Author:   "User 1",
-			Type:     models.PostTypeLink,
-			Title:    "Test Post " + strconv.Itoa(i),
-			Meta:     map[string]string{},
-			Likes:    rand.Intn(1000),
-			Dislikes: rand.Intn(1000),
-			Tags:     []string{"News"},
-			Created:  time.Unix(createdAt, 0),
-			Modified: time.Unix(createdAt, 0),
+		// Ensure the username exists
+		user, err = repo.Users.FindByUsername(token.Username)
+
+		if err != nil {
+			http.Error(w, "Permission Denied: Token invalid", http.StatusForbidden)
+			return
 		}
-		post, _ = repo.Posts.Store(post)
-		spew.Fdump(w, post)
+
+		// Check the password
+		if bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(token.Password)) != nil {
+			http.Error(w, "Permission Denied: Token invalid", http.StatusForbidden)
+			return
+		}
+	}
+
+	// Setup the form data and validator
+	err := r.ParseForm()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	v := validation.NewValidator(r.PostForm)
+
+	if r.Method == "POST" {
+		// Validate the input
+		v.AddRule("title", validation.NotBlank{})
+		v.AddRule("tags", validation.Length{Min: 0, Max: 10})
+
+		if r.PostFormValue("type") == "link" {
+			v.AddRule("url", validation.NotBlank{})
+		} else if r.PostFormValue("type") == "text" {
+			v.AddRule("content", validation.NotBlank{})
+		} else {
+			v.AddError("You have entered an invalid post type")
+		}
+
+		if v.Validate() {
+			var post models.Post
+
+			decoder := schema.NewDecoder()
+			err := decoder.Decode(&post, r.PostForm)
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			// Add extra post info
+			post.Author = user.Id
+			post.Created = time.Now()
+			post.Modified = time.Now()
+
+			post, err = repo.Posts.Store(post)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			spew.Dump(post)
+
+			url, _ := app.Router.Get("posts_view").URL("id", post.Id)
+			http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+		}
+	}
+
+	err = template.Render(w, "posts_submit", &map[string]interface{}{
+		"errors": v.Errors(),
+		"router": app.Router,
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }

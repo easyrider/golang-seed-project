@@ -5,10 +5,10 @@ import (
 	"encoding/gob"
 	"fmt"
 	"github.com/dancannon/gonews/app"
+	"github.com/dancannon/gonews/lib/template"
+	"github.com/dancannon/gonews/lib/validation"
 	"github.com/dancannon/gonews/models"
 	repo "github.com/dancannon/gonews/repositories"
-	"github.com/dancannon/gonews/util/template"
-	"github.com/dancannon/gonews/util/validation"
 	"github.com/gorilla/mux"
 	"net/http"
 )

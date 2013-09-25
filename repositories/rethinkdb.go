@@ -1,18 +1,18 @@
 package repositories
 
 import (
-	"github.com/dancannon/gonews/util/log"
+	"github.com/dancannon/gonews/lib/log"
 	r "github.com/dancannon/gorethink"
 )
 
 var (
-	conn *r.Connection
+	session *r.Session
 )
 
 func InitRethink() {
 	var err error
 
-	conn, err = r.Connect(map[string]interface{}{
+	session, err = r.Connect(map[string]interface{}{
 		"address":  "localhost:28015",
 		"database": "news",
 	})

@@ -1,0 +1,33 @@
+{{define "security_register" "base"}}
+    {{block "content"}}
+        <div class="content container narrow" role="main">
+            <div class="well">
+                <legend>Register</legend>
+
+                <form role="form" action="{{ route .router "security_register" }}" method="POST">
+                    {{range .errors}}
+                    <div class="alert alert-danger">{{.}}</div>
+                    {{else}}{{end}}
+
+                    <div class="form-group">
+                        <label for="username">User Name</label>
+                        <input type="text" class="form-control" name="username" id="username" placeholder="Enter username">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" class="form-control" name="email" id="email" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Password">
+                    </div>
+                    <div class="form-group">
+                        <label for="password_confirm">Confirm Password</label>
+                        <input type="password" class="form-control" name="password_confirm" id="password_confirm" placeholder="Confirm Password">
+                    </div>
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </form>
+            </div>
+        </div><!-- /.container -->
+    {{end}}
+{{end}}

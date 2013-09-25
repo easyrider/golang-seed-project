@@ -883,8 +883,10 @@
 
             if (isPreview == false) {
               // Give flag that tell the editor enter preview mode
+              $(e.target).removeClass("active")
               e.showPreview()
             } else {
+              $(e.target).addClass("active")
               e.hidePreview()
             }
           }

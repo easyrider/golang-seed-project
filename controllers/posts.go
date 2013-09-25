@@ -87,8 +87,8 @@ func (c *PostController) NewPostHandler(w http.ResponseWriter, r *http.Request) 
 	// Get token from session if it exists
 	session, _ := app.Sessions.Get(r, "security")
 	if token, ok := session.Values["token"].(authToken); !ok {
-		http.Error(w, "Token invalid", http.StatusForbidden)
-		return
+		url, _ := app.Router.Get("security_login").URL()
+		http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
 	} else {
 		var err error
 
@@ -96,14 +96,14 @@ func (c *PostController) NewPostHandler(w http.ResponseWriter, r *http.Request) 
 		user, err = repo.Users.FindByUsername(token.Username)
 
 		if err != nil {
-			http.Error(w, "Permission Denied: Token invalid", http.StatusForbidden)
-			return
+			url, _ := app.Router.Get("security_login").URL()
+			http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
 		}
 
 		// Check the password
 		if bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(token.Password)) != nil {
-			http.Error(w, "Permission Denied: Token invalid", http.StatusForbidden)
-			return
+			url, _ := app.Router.Get("security_login").URL()
+			http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
 		}
 	}
 
@@ -122,7 +122,7 @@ func (c *PostController) NewPostHandler(w http.ResponseWriter, r *http.Request) 
 		v.AddRule("tags", validation.Length{Min: 0, Max: 10})
 
 		if r.PostFormValue("type") == "link" {
-			v.AddRule("url", validation.NotBlank{})
+			v.AddRule("content", validation.NotBlank{})
 		} else if r.PostFormValue("type") == "text" {
 			v.AddRule("content", validation.NotBlank{})
 		} else {
@@ -141,7 +141,7 @@ func (c *PostController) NewPostHandler(w http.ResponseWriter, r *http.Request) 
 			}
 
 			// Add extra post info
-			post.Author = user.Id
+			post.Author = user
 			post.Created = time.Now()
 			post.Modified = time.Now()
 

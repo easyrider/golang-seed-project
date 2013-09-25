@@ -17,13 +17,15 @@ func NewServer(mode string, addr string) *http.Server {
 	// Setup router
 	app.SetRouter(initRouting())
 
-	// Setup logging handler
-	loggingHandler := handlers.CombinedLoggingHandler(log.GetLogFile("access.log"), app.Router)
+	// Setup handlers
+	var handler http.Handler
+	handler = app.Router
+	handler = handlers.CombinedLoggingHandler(log.GetLogFile("access.log"), handler)
 
 	// Create and start server
 	return &http.Server{
 		Addr:    fmt.Sprintf("%s", addr),
-		Handler: loggingHandler,
+		Handler: handler,
 	}
 }
 

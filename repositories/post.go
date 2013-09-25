@@ -37,22 +37,27 @@ func (repo *postRepository) FindAll() ([]Post, error) {
 
 func (repo *postRepository) FindTopByPage(page int, count int) ([]Post, error) {
 	var posts []Post
-	query := r.Table("posts").OrderBy(r.Desc(orderByTop))
+	query := r.Table("posts").Map(func(row r.RqlTerm) r.RqlTerm {
+		return row.Merge(map[string]interface{}{
+			"Author": r.Table("users").Get(row.Field("Author")).Field("Username").Default(""),
+		})
+	})
+	query = query.OrderBy(r.Desc(orderByTop))
 	query = query.Skip((page - 1) * count).Limit(count)
-	rows, err := query.Run(session)
-	if err != nil {
-		return posts, err
-	}
+	err := query.RunRow(session).Scan(&posts)
+	// if err != nil {
+	// 	return posts, err
+	// }
 
-	for rows.Next() {
-		var post Post
+	// for rows.Next() {
+	// 	var post Post
 
-		err := rows.Scan(&post)
-		if err != nil {
-			return posts, err
-		}
-		posts = append(posts, post)
-	}
+	// 	err := rows.Scan(&post)
+	// 	if err != nil {
+	// 		return posts, err
+	// 	}
+	// 	posts = append(posts, post)
+	// }
 
 	return posts, err
 }

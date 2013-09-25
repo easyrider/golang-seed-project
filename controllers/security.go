@@ -89,32 +89,34 @@ func (c *SecurityController) LoginHandler(w http.ResponseWriter, r *http.Request
 			user, err := repo.Users.FindByUsername(r.PostFormValue("username"))
 
 			if err != nil {
-				panic("User does not exist")
+				v.AddError("Incorrect username or password")
 			}
 
 			// Check the password
 			if bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(r.PostFormValue("password"))) != nil {
-				panic("Password is incorrect")
+				v.AddError("Incorrect username or password")
 			}
 
-			// Authenticate the user
-			session, _ := app.Sessions.Get(r, "security")
-			session.Values["token"] = authToken{
-				Username:      r.PostFormValue("username"),
-				Password:      r.PostFormValue("password"),
-				Roles:         []string{},
-				Authenticated: true,
-				RememberKey:   "",
-			}
+			if v.Valid() {
+				// Authenticate the user
+				session, _ := app.Sessions.Get(r, "security")
+				session.Values["token"] = authToken{
+					Username:      r.PostFormValue("username"),
+					Password:      r.PostFormValue("password"),
+					Roles:         []string{},
+					Authenticated: true,
+					RememberKey:   "",
+				}
 
-			err = session.Save(r, w)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
+				err = session.Save(r, w)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+
+				url, _ := app.Router.Get("homepage").URL()
+				http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
 			}
-			fmt.Println("Logged in")
-			url, _ := app.Router.Get("homepage").URL()
-			http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
 		}
 	}
 

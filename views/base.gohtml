@@ -52,13 +52,13 @@
 			        </form>
 
 			        <ul class="nav navbar-nav navbar-right">
-			            <li><a href="#">Sign in</a></li>
+			            <li><a href="{{ route .router "security_login" }}">Sign in</a></li>
+                        <li><a href="{{ route .router "security_register" }}">Register</a></li>
 			        </ul>
 			    </div><!-- /.navbar-collapse -->
 			</nav>
 			{{end}}
 			{{block "content"}}
-				<p>This is just a placeholder.</p>
 		    {{end}}
 		{{end}}
 	</body>

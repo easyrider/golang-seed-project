@@ -1,0 +1,21 @@
+{{define "security_login" "base"}}
+    {{block "body"}}
+        <div class="container">
+            <form class="form-signin" action="{{ route .router "security_login" }}" method="POST">
+                <h2 class="form-signin-heading">Please sign in</h2>
+
+                {{range .Errors}}
+                <div class="alert alert-danger">{{.}}</div>
+                {{else}}{{end}}
+
+                <input type="text" name="username" class="form-control" placeholder="Username" autofocus>
+                <input type="password" name="password" class="form-control" placeholder="Password">
+                <label class="checkbox">
+                    <input type="checkbox" value="remember-me"> Remember me
+                </label>
+                <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+            </form>
+
+        </div> <!-- /container -->
+    {{end}}
+{{end}}

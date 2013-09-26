@@ -13,16 +13,16 @@ import (
 )
 
 var (
-	templatingViewsPath string
-	templates           *htmlTemplate.Template
+	templatePath string
+	templates    *htmlTemplate.Template
 )
 
-func Init(viewsPath string) {
-	templatingViewsPath = viewsPath
+func Init(path string) {
+	templatePath = path
 
 	// Get all files in the views directory
 	filenames := []string{}
-	err := filepath.Walk(viewsPath, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(templatePath, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() && filepath.Ext(path) == ".gohtml" {
 			filenames = append(filenames, path)
 		}

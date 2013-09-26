@@ -14,11 +14,11 @@ import (
 var (
 	AppName string
 
-	BasePath   string
-	ConfigPath string
-	ViewsPath  string
-	AssetsPath string
-	LogsPath   string
+	BasePath     string
+	ConfigPath   string
+	TemplatePath string
+	AssetsPath   string
+	LogsPath     string
 
 	RunMode string = "dev"
 	DevMode bool   = true
@@ -37,7 +37,7 @@ func Init(mode string) {
 
 	BasePath, _ = os.Getwd()
 	ConfigPath = path.Join(BasePath, "app")
-	ViewsPath = path.Join(BasePath, "views")
+	TemplatePath = path.Join(BasePath, "templates")
 	AssetsPath = path.Join(BasePath, "assets")
 	LogsPath = path.Join(BasePath, "logs")
 
@@ -45,7 +45,7 @@ func Init(mode string) {
 	Cookies = sessions.NewCookieStore(securecookie.GenerateRandomKey(64))
 
 	log.Init(LogsPath)
-	template.Init(ViewsPath)
+	template.Init(TemplatePath)
 
 	repositories.InitRethink()
 

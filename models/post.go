@@ -13,17 +13,6 @@ const (
 	LinkTypeArticle = "article"
 )
 
-type PostList struct {
-	Posts       []Post
-	CurrentPage int
-	PageCount   int
-	TotalCount  int
-}
-
-func (pl *PostList) LastPage() int {
-	return int(math.Ceil(float64(pl.TotalCount) / float64(pl.PageCount)))
-}
-
 type Post struct {
 	Id         string `gorethink:"id,omitempty"`
 	AuthorId   string
@@ -41,6 +30,10 @@ type Post struct {
 
 func (p *Post) Score() string {
 	return strconv.Itoa(p.Likes - p.Dislikes)
+}
+
+func (p *Post) IsType(t string) bool {
+	return p.Type == t
 }
 
 func (p *Post) Rank() float64 {

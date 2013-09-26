@@ -1,0 +1,43 @@
+{{define "postlist" "base"}}
+    {{block "content"}}
+    <div class="content container fluid" role="main">
+            <ul id="post-list"class="post-list media-list">
+                {{range .Posts}}
+                <li id="{{ .Id }}" class="post media">
+                    <div class="post-buttons media-buttons btn-group btn-group-vertical pull-right">
+                        <button type="button" class="comments-btn btn btn-default">
+                            <span class="icomoon icomoon-bubbles-10"></span>
+                            <span class="badge">20</span>
+                        </button>
+                        <button type="button" class="more-info-btn btn btn-default hidden-xs" data-toggle="collapse" data-target="#post-more-info-1">
+                            <span class="icomoon icomoon-info"></span>
+                        </button>
+                    </div>
+                    <div class="post-vote-buttons media-buttons btn-group btn-group-vertical pull-left">
+                        <button type="button" class="downvote-btn btn btn-default">
+                            <span class="icomoon icomoon-thumbs-up-5"></span>
+                            <span class="badge">{{ .Likes }}</span>
+                        </button>
+                        <button type="button" class="upvote-btn btn btn-default">
+                            <span class="icomoon icomoon-thumbs-up-6"></span>
+                            <span class="badge">{{ .Dislikes }}</span>
+                        </button>
+                    </div>
+                    <div class="media-body post-body">
+                        <a href="/view/{{ .Id }}" class="post-heading media-heading"><h4>{{ .Title }}</h4></a>
+                    </div>
+                    <div class="post-meta media-meta">
+                        <small class="author">By <a href="#">{{ .AuthorName }}</a></small>
+                        <small class="published">On <time datetime="{{ .Created }}" pubdate="">{{ .Created }}</time></small>
+                        <div class="tags hidden-xs">
+                            {{ range .Tags }}
+                            <span class="label label-info">{{ . }}</span>
+                            {{else}}{{end}}
+                        </div>
+                    </div>
+                </li>
+                {{else}}{{end}}
+            </ul>
+        </div><!-- /.container -->
+    {{end}}
+{{end}}

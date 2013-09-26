@@ -1,0 +1,44 @@
+{{define "posts_view" "base"}}
+    {{block "content"}}
+        <div class="content container" role="main">
+            <div class="well media">
+                <div class="post-buttons media-buttons btn-group btn-group-vertical pull-right">
+                    <button type="button" class="comments-btn btn btn-default">
+                        <span class="icomoon icomoon-bubbles-10"></span>
+                        <span class="badge">20</span>
+                    </button>
+                    <button type="button" class="more-info-btn btn btn-default hidden-xs" data-toggle="collapse" data-target="#post-more-info-1">
+                        <span class="icomoon icomoon-info"></span>
+                    </button>
+                </div>
+                <div class="post-vote-buttons media-buttons btn-group btn-group-vertical pull-left">
+                    <button type="button" class="downvote-btn btn btn-default">
+                        <span class="icomoon icomoon-thumbs-up-5"></span>
+                        <span class="badge">{{ .Post.Likes }}</span>
+                    </button>
+                    <button type="button" class="upvote-btn btn btn-default">
+                        <span class="icomoon icomoon-thumbs-up-6"></span>
+                        <span class="badge">{{ .Post.Dislikes }}</span>
+                    </button>
+                </div>
+                <div class="media-body post-body">
+                    <a href="/view/{{ .Post.Id }}" class="post-heading media-heading"><h4>{{ .Post.Title }}</h4></a>
+                </div>
+                <div class="post-meta media-meta">
+                    <small class="author">By <a href="#">{{ .Post.AuthorName }}</a></small>
+                    <small class="published">On <time datetime="{{ .Post.Created }}" pubdate="">{{ .Post.Created }}</time></small>
+                    <div class="tags hidden-xs">
+                    </div>
+                </div>
+                {{if .Post.IsType "text"}}
+                <div class="post-content">
+                    <p>{{.PostContent}}</p>
+                </div>
+                {{else}}{{end}}
+            </div>
+            <div class="well comments">
+
+            </div>
+        </div><!-- /.container -->
+    {{end}}
+{{end}}

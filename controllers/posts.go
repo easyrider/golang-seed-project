@@ -8,6 +8,7 @@ import (
 	"github.com/dancannon/gonews/lib/validation"
 	"github.com/dancannon/gonews/models"
 	repo "github.com/dancannon/gonews/repositories"
+	views "github.com/dancannon/gonews/views/posts"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
@@ -53,9 +54,9 @@ func (c *PostController) PostListHandler(w http.ResponseWriter, r *http.Request,
 	}
 
 	w.Header().Add("Content-Type", "text/html")
-	err = template.Render(w, "postlist", &map[string]interface{}{
-		"posts":  posts,
-		"router": app.Router,
+	err = template.Render(w, "postlist", views.List{
+		Posts:  posts,
+		Router: app.Router,
 	})
 
 	if err != nil {
@@ -75,9 +76,15 @@ func (c *PostController) PostViewHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	w.Header().Add("Content-Type", "text/html")
-	fmt.Fprintln(w, post)
+	err = template.Render(w, "posts_view", &views.View{
+		Post:   post,
+		Router: app.Router,
+	})
 
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (c *PostController) NewPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -159,9 +166,9 @@ func (c *PostController) NewPostHandler(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	err = template.Render(w, "posts_submit", &map[string]interface{}{
-		"errors": v.Errors(),
-		"router": app.Router,
+	err = template.Render(w, "posts_submit", views.Submit{
+		Errors: v.Errors(),
+		Router: app.Router,
 	})
 
 	if err != nil {

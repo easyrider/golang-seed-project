@@ -5,8 +5,9 @@ import (
 )
 
 var (
-	Posts *postRepository
-	Users *userRepository
+	Comments *commentRepository
+	Posts    *postRepository
+	Users    *userRepository
 )
 
 type Repository interface {

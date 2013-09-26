@@ -8,8 +8,9 @@ import (
 )
 
 type View struct {
-	Post   models.Post
-	Router *mux.Router
+	Post     models.Post
+	Comments []Comment
+	Router   *mux.Router
 }
 
 func (v *View) PostContent() template.HTML {

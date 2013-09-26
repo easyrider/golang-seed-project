@@ -9,6 +9,7 @@ import (
 	"github.com/dancannon/gonews/lib/validation"
 	"github.com/dancannon/gonews/models"
 	repo "github.com/dancannon/gonews/repositories"
+	views "github.com/dancannon/gonews/views/security"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -58,10 +59,10 @@ func (c *SecurityController) RegisterHandler(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	err = template.Render(w, "security_register", &map[string]interface{}{
-		"user":   user,
-		"errors": v.Errors(),
-		"router": app.Router,
+	err = template.Render(w, "security_register", &views.Register{
+		User:   user,
+		Errors: v.Errors(),
+		Router: app.Router,
 	})
 
 	if err != nil {
@@ -120,9 +121,9 @@ func (c *SecurityController) LoginHandler(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	err = template.Render(w, "security_login", &map[string]interface{}{
-		"errors": v.Errors(),
-		"router": app.Router,
+	err = template.Render(w, "security_login", &views.Login{
+		Errors: v.Errors(),
+		Router: app.Router,
 	})
 
 	if err != nil {

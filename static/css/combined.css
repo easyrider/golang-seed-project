@@ -13395,6 +13395,42 @@ td.visible-print {
   margin: 0 auto;
 }
 
+.comment-list .comment-list {
+  margin-top: 25px;
+}
+
+.comment-list .comment {
+  margin: 0;
+}
+
+.comment {
+  padding: 15px 30px 15px 15px;
+  margin: 15px 0;
+  background-color: #FFF;
+  border: 1px solid #e6e6e6;
+  border-left: 5px solid #e6e6e6;
+}
+
+.comment .comment {
+  border-left: 5px solid #cccccc;
+}
+
+.comment .comment .comment {
+  border-left: 5px solid #b3b3b3;
+}
+
+.comment .comment .comment .comment {
+  border-left: 5px solid #999999;
+}
+
+.comment .comment .comment .comment .comment {
+  border-left: 5px solid #808080;
+}
+
+.comment .comment .comment .comment .comment .comment {
+  border-left: 5px solid #666666;
+}
+
 .form-signin {
   max-width: 330px;
   padding: 15px;

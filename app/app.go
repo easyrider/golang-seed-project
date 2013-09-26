@@ -5,7 +5,6 @@ import (
 	"github.com/dancannon/gonews/lib/template"
 	"github.com/dancannon/gonews/repositories"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/securecookie"
 	"github.com/gorilla/sessions"
 	"os"
 	"path"
@@ -41,8 +40,10 @@ func Init(mode string) {
 	AssetsPath = path.Join(BasePath, "assets")
 	LogsPath = path.Join(BasePath, "logs")
 
-	Sessions = sessions.NewFilesystemStore("", securecookie.GenerateRandomKey(64))
-	Cookies = sessions.NewCookieStore(securecookie.GenerateRandomKey(64))
+	Sessions = sessions.NewFilesystemStore("", []byte("secret"))
+	Cookies = sessions.NewCookieStore([]byte("secret"))
+	// Sessions = sessions.NewFilesystemStore("", securecookie.GenerateRandomKey(64))
+	// Cookies = sessions.NewCookieStore(securecookie.GenerateRandomKey(64))
 
 	log.Init(LogsPath)
 	template.Init(TemplatePath)

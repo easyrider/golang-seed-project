@@ -1,10 +1,12 @@
-ackage security
+package security
 
 import (
-    "github.com/gorilla/mux"
+	"github.com/dancannon/gonews/models"
+	"github.com/gorilla/mux"
 )
 
 type Register struct {
-    Errors []string
-    Router *mux.Router
+	User   models.User
+	Errors []string
+	Router *mux.Router
 }

@@ -25,6 +25,7 @@ func (c *PostController) Init(r *mux.Router) {
 	r.HandleFunc("/new", c.NewPostListHandler).Name("posts_list_new")
 	r.HandleFunc("/view/{id}", c.PostViewHandler).Name("posts_view")
 	r.HandleFunc("/submit", c.NewPostHandler).Name("posts_submit")
+	r.HandleFunc("/submit/comment", c.NewCommentHandler).Name("posts_submit_comment")
 }
 
 func (c *PostController) TopPostListHandler(w http.ResponseWriter, r *http.Request) {
@@ -77,8 +78,9 @@ func (c *PostController) PostViewHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	err = template.Render(w, "posts_view", &views.View{
-		Post:   post,
-		Router: app.Router,
+		Post:     post,
+		Comments: LoadThread(post.Id),
+		Router:   app.Router,
 	})
 
 	if err != nil {
@@ -175,4 +177,133 @@ func (c *PostController) NewPostHandler(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (c *PostController) NewCommentHandler(w http.ResponseWriter, r *http.Request) {
+	// Ensure the user is logged in
+	var user models.User
+
+	// Get token from session if it exists
+	session, _ := app.Sessions.Get(r, "security")
+	if token, ok := session.Values["token"].(authToken); !ok {
+		url, _ := app.Router.Get("security_login").URL()
+		http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+	} else {
+		var err error
+
+		// Ensure the username exists
+		user, err = repo.Users.FindByUsername(token.Username)
+
+		if err != nil {
+			url, _ := app.Router.Get("security_login").URL()
+			http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+		}
+
+		// Check the password
+		if bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(token.Password)) != nil {
+			url, _ := app.Router.Get("security_login").URL()
+			http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+		}
+	}
+
+	// Setup the form data and validator
+	err := r.ParseForm()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	v := validation.NewValidator(r.PostForm)
+
+	if r.Method == "POST" {
+		// Validate the input
+		v.AddRule("content", validation.NotBlank{})
+
+		// If the comment has a parent check it exists
+		depth := 0
+		if r.PostFormValue("parent") != "" {
+			parent, err := repo.Comments.FindById(r.PostFormValue("parent"))
+			if err != nil {
+				v.AddError("That parent comment does not exist")
+			} else {
+				depth = parent.Depth + 1
+			}
+		}
+
+		if v.Validate() {
+			var comment models.Comment
+
+			decoder := schema.NewDecoder()
+			err := decoder.Decode(&comment, r.PostForm)
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			// Add extra info
+			comment.Post = r.PostFormValue("post")
+			comment.Parent = r.PostFormValue("parent")
+			comment.Depth = depth
+			comment.AuthorId = user.Id
+			comment.AuthorName = user.Username
+			comment.Created = time.Now()
+			comment.Modified = time.Now()
+
+			comment, err = repo.Comments.Store(comment)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			url, _ := app.Router.Get("posts_view").URL("id", comment.Post)
+			http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+		}
+	}
+
+	err = template.Render(w, "posts_submit_comment", views.Submit{
+		Errors: v.Errors(),
+		Router: app.Router,
+	})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func LoadThread(postId string) []views.Comment {
+	var comments []views.Comment
+
+	cs, err := repo.Comments.FindByPost(postId)
+	if err != nil {
+		return comments
+	}
+
+	for _, c := range cs {
+		comments = append(comments, views.Comment{
+			Comment:  c,
+			Children: LoadSubThread(c.Id),
+		})
+	}
+
+	return comments
+}
+
+func LoadSubThread(commentId string) []views.Comment {
+	var comments []views.Comment
+
+	cs, err := repo.Comments.FindChildren(commentId)
+	if err != nil {
+		return comments
+	}
+
+	for _, c := range cs {
+		comments = append(comments, views.Comment{
+			Comment:  c,
+			Children: LoadSubThread(c.Id),
+		})
+	}
+
+	return comments
 }

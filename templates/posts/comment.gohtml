@@ -1,0 +1,28 @@
+{{define "posts_comment"}}
+    <li id="{{ .Comment.Id }}" class="comment media">
+        <div class="comment-vote-buttons media-buttons btn-group btn-group-vertical pull-left">
+            <button type="button" class="downvote-btn btn btn-default">
+                <span class="icomoon icomoon-thumbs-up-5"></span>
+                <span class="badge">{{ .Comment.Likes }}</span>
+            </button>
+            <button type="button" class="upvote-btn btn btn-default">
+                <span class="icomoon icomoon-thumbs-up-6"></span>
+                <span class="badge">{{ .Comment.Dislikes }}</span>
+            </button>
+        </div>
+        <div class="comment-meta media-top-meta">
+            <small class="author">By <a href="#">{{ .Comment.AuthorName }}</a></small>
+            <small class="published">On <time datetime="{{ .Comment.Created }}" pubdate="">{{ .Comment.Created }}</time></small>
+        </div>
+        <div class="media-body comment-body">
+            <p>{{.CommentContent}}</p>
+        </div>
+        {{if .HasChildren}}
+        <ul id="comment-list"class="comment-list media-list">
+            {{range .Children}}
+                {{template "posts_comment" .}}
+            {{else}}{{end}}
+        </ul>
+        {{else}}{{end}}
+    </li>
+{{end}}

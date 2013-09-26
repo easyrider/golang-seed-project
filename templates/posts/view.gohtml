@@ -30,6 +30,9 @@
                     <div class="tags hidden-xs">
                     </div>
                 </div>
+
+                <hr />
+
                 {{if .Post.IsType "text"}}
                 <div class="post-content">
                     <p>{{.PostContent}}</p>
@@ -37,13 +40,20 @@
                 {{else}}{{end}}
             </div>
             <div class="well comments">
-                <form class="comment-form top-comment-form">
+                <form class="comment-form top-comment-form" role="form" action="{{ route .Router "posts_submit_comment" }}" method="POST">
                     <div class="form-group">
                         <label for="content">Comment</label>
                         <textarea class="form-control" name="content" id="content" data-provide="markdown" rows="10"></textarea>
                     </div>
+                    <input type="hidden" name="post" value="{{.Post.Id}}" />
                     <button type="submit" class="btn btn-default">Submit</button>
                 </form>
+                <hr />
+                <ul id="comment-list"class="comment-list media-list">
+                    {{range .Comments}}
+                        {{template "posts_comment" .}}
+                    {{else}}{{end}}
+                </ul>
             </div>
         </div><!-- /.container -->
     {{end}}

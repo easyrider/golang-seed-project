@@ -37,7 +37,13 @@
                 {{else}}{{end}}
             </div>
             <div class="well comments">
-
+                <form class="comment-form top-comment-form">
+                    <div class="form-group">
+                        <label for="content">Comment</label>
+                        <textarea class="form-control" name="content" id="content" data-provide="markdown" rows="10"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </form>
             </div>
         </div><!-- /.container -->
     {{end}}

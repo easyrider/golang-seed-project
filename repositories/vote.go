@@ -15,10 +15,10 @@ func (repo *voteRepository) FindById(id string) (Vote, error) {
 	return vote, err
 }
 
-func (repo *voteRepository) FindByPostAndUser(post, user string) (Vote, error) {
+func (repo *voteRepository) FindByEntityAndUser(post, user string) (Vote, error) {
 	var vote Vote
 	err := r.Table("votes").Filter(
-		r.Row.Field("Post").Eq(post).And(r.Row.Field("User").Eq(user)),
+		r.Row.Field("Entity").Eq(post).And(r.Row.Field("User").Eq(user)),
 	).RunRow(session).Scan(&vote)
 
 	return vote, err

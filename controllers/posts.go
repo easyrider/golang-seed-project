@@ -24,6 +24,7 @@ func (c *PostController) Init(r *mux.Router) {
 	r.HandleFunc("/new", c.NewPostListHandler).Name("posts_list_new")
 	r.HandleFunc("/posts/{id}", c.PostViewHandler).Name("posts_view")
 	r.HandleFunc("/posts/{id}/vote/{type}", c.PostVoteHandler).Name("posts_vote")
+	r.HandleFunc("/comment/{id}/vote/{type}", c.CommentVoteHandler).Name("posts_comment_vote")
 	r.HandleFunc("/submit", c.NewPostHandler).Name("posts_submit")
 	r.HandleFunc("/submit/comment", c.NewCommentHandler).Name("posts_submit_comment")
 }
@@ -131,7 +132,7 @@ func (c *PostController) PostVoteHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Get a previous vote if one exists
-	vote, err := repo.Votes.FindByPostAndUser(id, user.Id)
+	vote, err := repo.Votes.FindByEntityAndUser(id, user.Id)
 
 	// If the user has voted already on this post then change the type
 	if err == nil {
@@ -175,9 +176,9 @@ func (c *PostController) PostVoteHandler(w http.ResponseWriter, r *http.Request)
 	} else {
 		// Otherwise create a new vote
 		vote = models.Vote{
-			Post: id,
-			User: user.Id,
-			Type: voteType,
+			Entity: id,
+			User:   user.Id,
+			Type:   voteType,
 		}
 		if voteType == models.VoteTypeLike {
 			post.Likes += 1
@@ -190,6 +191,111 @@ func (c *PostController) PostVoteHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	url, _ := app.Router.Get("posts_view").URL("id", post.Id)
+	http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+}
+
+func (c *PostController) CommentVoteHandler(w http.ResponseWriter, r *http.Request) {
+	// Ensure the user is logged in
+	var user models.User
+
+	// Get token from session if it exists
+	session, _ := app.Sessions.Get(r, "security")
+	if token, ok := session.Values["token"].(authToken); !ok {
+		url, _ := app.Router.Get("security_login").URL()
+		http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+	} else {
+		var err error
+
+		// Ensure the username exists
+		user, err = repo.Users.FindByUsername(token.Username)
+
+		if err != nil {
+			url, _ := app.Router.Get("security_login").URL()
+			http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+		}
+
+		// Check the password
+		if bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(token.Password)) != nil {
+			url, _ := app.Router.Get("security_login").URL()
+			http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+		}
+	}
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+	voteType := vars["type"]
+
+	if !(voteType == "like" || voteType == "dislike") {
+		http.NotFound(w, r)
+		return
+	}
+
+	comment, err := repo.Comments.FindById(id)
+	if comment.Id == "" || err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Get a previous vote if one exists
+	vote, err := repo.Votes.FindByEntityAndUser(id, user.Id)
+
+	// If the user has voted already on this comment then change the type
+	if err == nil {
+		if voteType == models.VoteTypeLike {
+			if vote.Type == models.VoteTypeDislike {
+				comment.Likes += 1
+				comment.Dislikes -= 1
+			} else {
+				comment.Likes -= 1
+				repo.Votes.Delete(vote.Id)
+				repo.Comments.Update(comment)
+
+				url, _ := app.Router.Get("posts_view").URL("id", comment.Post)
+				http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+				return
+			}
+		} else {
+			if vote.Type == models.VoteTypeLike {
+				comment.Likes -= 1
+				comment.Dislikes += 1
+			} else {
+				comment.Dislikes -= 1
+				repo.Votes.Delete(vote.Id)
+				repo.Comments.Update(comment)
+
+				url, _ := app.Router.Get("posts_view").URL("id", comment.Post)
+				http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+				return
+			}
+		}
+		if comment.Likes < 0 {
+			comment.Likes = 0
+		}
+		if comment.Dislikes < 0 {
+			comment.Dislikes = 0
+		}
+
+		vote.Type = voteType
+		repo.Votes.Update(vote)
+		repo.Comments.Update(comment)
+	} else {
+		// Otherwise create a new vote
+		vote = models.Vote{
+			Entity: id,
+			User:   user.Id,
+			Type:   voteType,
+		}
+		if voteType == models.VoteTypeLike {
+			comment.Likes += 1
+		} else {
+			comment.Dislikes += 1
+		}
+
+		repo.Votes.Store(vote)
+		repo.Comments.Update(comment)
+	}
+
+	url, _ := app.Router.Get("posts_view").URL("id", comment.Post)
 	http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
 }
 

@@ -4,7 +4,7 @@
             <div class="well">
                 <legend>Register</legend>
 
-                <form role="form" action="{{ route .Router "security_register" }}" method="POST">
+                <form role="form" action="{{ route "security_register" }}" method="POST">
                     {{range .Errors}}
                     <div class="alert alert-danger">{{.}}</div>
                     {{else}}{{end}}

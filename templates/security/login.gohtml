@@ -1,7 +1,7 @@
 {{define "security_login" "base"}}
     {{block "body"}}
         <div class="container">
-            <form class="form-signin" action="{{ route .Router "security_login" }}" method="POST">
+            <form class="form-signin" action="{{ route "security_login" }}" method="POST">
                 <h2 class="form-signin-heading">Please sign in</h2>
 
                 {{range .Errors}}

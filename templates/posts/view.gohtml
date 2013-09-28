@@ -12,11 +12,11 @@
                     </button>
                 </div>
                 <div class="post-vote-buttons media-buttons btn-group btn-group-vertical pull-left">
-                    <a href="{{ route .Router "posts_vote" "id" .Post.Id "type" "like" }}" class="downvote-btn btn btn-default">
+                    <a href="{{ route "posts_vote" "id" .Post.Id "type" "like" }}" class="downvote-btn btn btn-default">
                         <span class="icomoon icomoon-thumbs-up-5"></span>
                         <span class="badge">{{ .Post.Likes }}</span>
                     </a>
-                    <a href="{{ route .Router "posts_vote" "id" .Post.Id "type" "dislike" }}" class="upvote-btn btn btn-default">
+                    <a href="{{ route "posts_vote" "id" .Post.Id "type" "dislike" }}" class="upvote-btn btn btn-default">
                         <span class="icomoon icomoon-thumbs-up-6"></span>
                         <span class="badge">{{ .Post.Dislikes }}</span>
                     </a>
@@ -40,7 +40,7 @@
                 {{else}}{{end}}
             </div>
             <div class="well comments">
-
+                {{template "posts_submit_comment_form" .}}
                 <hr />
                 <ul id="comment-list"class="comment-list media-list">
                     {{range .Comments}}

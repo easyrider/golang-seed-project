@@ -94,6 +94,16 @@ func (repo *commentRepository) Store(comment Comment) (Comment, error) {
 	return comment, nil
 }
 
+func (repo *commentRepository) Update(comment Comment) (Comment, error) {
+	_, err := r.Table("comments").Update(comment).RunWrite(session)
+
+	if err != nil {
+		return comment, err
+	}
+
+	return comment, nil
+}
+
 func (repo *commentRepository) Delete(id string) error {
 	return r.Table("comments").Get(id).Delete().Exec(session)
 }

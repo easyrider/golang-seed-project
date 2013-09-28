@@ -1,14 +1,19 @@
 {{define "posts_comment"}}
     <li id="{{ .Comment.Id }}" class="comment media">
+        <div class="comment-buttons media-buttons btn-group btn-group-vertical pull-right">
+            <button type="button" class="comments-btn btn btn-default" data-toggle="collapse" data-target="#comment-form-{{.Comment.Id}}">
+                <span class="icomoon icomoon-reply"></span>
+            </button>
+        </div>
         <div class="comment-vote-buttons media-buttons btn-group btn-group-vertical pull-left">
-            <button type="button" class="downvote-btn btn btn-default">
+            <a href="{{ route "posts_comment_vote" "id" .Comment.Id "type" "like" }}" class="downvote-btn btn btn-default">
                 <span class="icomoon icomoon-thumbs-up-5"></span>
                 <span class="badge">{{ .Comment.Likes }}</span>
-            </button>
-            <button type="button" class="upvote-btn btn btn-default">
+            </a>
+            <a href="{{ route "posts_comment_vote" "id" .Comment.Id "type" "dislike" }}" class="upvote-btn btn btn-default">
                 <span class="icomoon icomoon-thumbs-up-6"></span>
                 <span class="badge">{{ .Comment.Dislikes }}</span>
-            </button>
+            </a>
         </div>
         <div class="comment-meta media-top-meta">
             <small class="author">By <a href="#">{{ .Comment.AuthorName }}</a></small>
@@ -16,6 +21,9 @@
         </div>
         <div class="media-body comment-body">
             <p>{{.CommentContent}}</p>
+        </div>
+        <div class="child-comment-form collapse clear clearfix" id="comment-form-{{.Comment.Id}}" style="margin-top:15px;">
+        {{template "posts_submit_child_comment_form" .}}
         </div>
         {{if .HasChildren}}
         <ul id="comment-list"class="comment-list media-list">

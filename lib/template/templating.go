@@ -15,6 +15,8 @@ import (
 var (
 	templatePath string
 	templates    *htmlTemplate.Template
+
+	router *mux.Router
 )
 
 func Init(path string) {
@@ -66,8 +68,12 @@ func Render(w http.ResponseWriter, name string, data interface{}) error {
 	return templates.ExecuteTemplate(w, name, data)
 }
 
+func SetRouter(r *mux.Router) {
+	router = r
+}
+
 // Helper functions
-func routeHelper(router *mux.Router, name string, args ...string) (string, error) {
+func routeHelper(name string, args ...string) (string, error) {
 	route := router.Get(name)
 	if route == nil {
 		return "", fmt.Errorf("No route exists with the name '%s'", name)

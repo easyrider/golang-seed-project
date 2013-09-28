@@ -55,4 +55,5 @@ func Init(mode string) {
 
 func SetRouter(r *mux.Router) {
 	Router = r
+	template.SetRouter(r)
 }

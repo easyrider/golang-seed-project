@@ -11,6 +11,9 @@ const (
 	PostTypeText = "text"
 
 	LinkTypeArticle = "article"
+
+	VoteTypeLike    = "like"
+	VoteTypeDislike = "dislike"
 )
 
 type Post struct {

@@ -1,7 +1,8 @@
 {{define "postlist" "base"}}
     {{block "content"}}
-    <div class="content container fluid" role="main">
+        <div class="content container fluid" role="main">
             <ul id="post-list"class="post-list media-list">
+                {{$Router := .Router}}
                 {{range .Posts}}
                 <li id="{{ .Id }}" class="post media">
                     <div class="post-buttons media-buttons btn-group btn-group-vertical pull-right">
@@ -14,17 +15,17 @@
                         </button>
                     </div>
                     <div class="post-vote-buttons media-buttons btn-group btn-group-vertical pull-left">
-                        <button type="button" class="downvote-btn btn btn-default">
+                        <a href="{{ route $Router "posts_vote" "id" .Id "type" "like" }}" class="downvote-btn btn btn-default">
                             <span class="icomoon icomoon-thumbs-up-5"></span>
                             <span class="badge">{{ .Likes }}</span>
-                        </button>
-                        <button type="button" class="upvote-btn btn btn-default">
+                        </a>
+                        <a href="{{ route $Router "posts_vote" "id" .Id "type" "dislike" }}" class="upvote-btn btn btn-default">
                             <span class="icomoon icomoon-thumbs-up-6"></span>
                             <span class="badge">{{ .Dislikes }}</span>
-                        </button>
+                        </a>
                     </div>
                     <div class="media-body post-body">
-                        <a href="/view/{{ .Id }}" class="post-heading media-heading"><h4>{{ .Title }}</h4></a>
+                        <a href="{{ route $Router "posts_view" "id" .Id }}" class="post-heading media-heading"><h4>{{ .Title }}</h4></a>
                     </div>
                     <div class="post-meta media-meta">
                         <small class="author">By <a href="#">{{ .AuthorName }}</a></small>

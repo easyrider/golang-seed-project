@@ -37,12 +37,12 @@ func (repo *postRepository) FindAll() ([]Post, error) {
 
 func (repo *postRepository) FindTopByPage(page int, count int) ([]Post, error) {
 	var posts []Post
-	query := r.Table("posts").Map(func(row r.RqlTerm) r.RqlTerm {
+	query := r.Table("posts").OrderBy(r.Desc(orderByTop))
+	query = query.Map(func(row r.RqlTerm) r.RqlTerm {
 		return row.Merge(map[string]interface{}{
 			"Author": r.Table("users").Get(row.Field("Author")).Field("Username").Default(""),
 		})
 	})
-	query = query.OrderBy(r.Desc(orderByTop))
 	query = query.Skip((page - 1) * count).Limit(count)
 	err := query.RunRow(session).Scan(&posts)
 	// if err != nil {
@@ -94,6 +94,16 @@ func (repo *postRepository) Store(post Post) (Post, error) {
 	// Find new ID of product if needed
 	if post.Id == "" && len(response.GeneratedKeys) == 1 {
 		post.Id = response.GeneratedKeys[0]
+	}
+
+	return post, nil
+}
+
+func (repo *postRepository) Update(post Post) (Post, error) {
+	_, err := r.Table("posts").Update(post).RunWrite(session)
+
+	if err != nil {
+		return post, err
 	}
 
 	return post, nil

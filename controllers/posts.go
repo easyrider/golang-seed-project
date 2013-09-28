@@ -9,7 +9,6 @@ import (
 	"github.com/dancannon/gonews/models"
 	repo "github.com/dancannon/gonews/repositories"
 	views "github.com/dancannon/gonews/views/posts"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
 	"net/http"
@@ -23,7 +22,8 @@ func (c *PostController) Init(r *mux.Router) {
 	r.HandleFunc("/", c.TopPostListHandler).Name("homepage")
 	r.HandleFunc("/top", c.TopPostListHandler).Name("posts_list_top")
 	r.HandleFunc("/new", c.NewPostListHandler).Name("posts_list_new")
-	r.HandleFunc("/view/{id}", c.PostViewHandler).Name("posts_view")
+	r.HandleFunc("/posts/{id}", c.PostViewHandler).Name("posts_view")
+	r.HandleFunc("/posts/{id}/vote/{type}", c.PostVoteHandler).Name("posts_vote")
 	r.HandleFunc("/submit", c.NewPostHandler).Name("posts_submit")
 	r.HandleFunc("/submit/comment", c.NewCommentHandler).Name("posts_submit_comment")
 }
@@ -43,9 +43,9 @@ func (c *PostController) PostListHandler(w http.ResponseWriter, r *http.Request,
 	)
 
 	if sortMethod == "new" {
-		posts, err = repo.Posts.FindTopByPage(1, 25)
-	} else {
 		posts, err = repo.Posts.FindNewByPage(1, 25)
+	} else {
+		posts, err = repo.Posts.FindTopByPage(1, 25)
 	}
 
 	if err != nil {
@@ -71,8 +71,7 @@ func (c *PostController) PostViewHandler(w http.ResponseWriter, r *http.Request)
 	id := vars["id"]
 
 	post, err := repo.Posts.FindById(id)
-	if err != nil {
-		fmt.Println(err)
+	if post.Id == "" || err != nil {
 		http.NotFound(w, r)
 		return
 	}
@@ -87,6 +86,111 @@ func (c *PostController) PostViewHandler(w http.ResponseWriter, r *http.Request)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+func (c *PostController) PostVoteHandler(w http.ResponseWriter, r *http.Request) {
+	// Ensure the user is logged in
+	var user models.User
+
+	// Get token from session if it exists
+	session, _ := app.Sessions.Get(r, "security")
+	if token, ok := session.Values["token"].(authToken); !ok {
+		url, _ := app.Router.Get("security_login").URL()
+		http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+	} else {
+		var err error
+
+		// Ensure the username exists
+		user, err = repo.Users.FindByUsername(token.Username)
+
+		if err != nil {
+			url, _ := app.Router.Get("security_login").URL()
+			http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+		}
+
+		// Check the password
+		if bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(token.Password)) != nil {
+			url, _ := app.Router.Get("security_login").URL()
+			http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+		}
+	}
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+	voteType := vars["type"]
+
+	if !(voteType == "like" || voteType == "dislike") {
+		http.NotFound(w, r)
+		return
+	}
+
+	post, err := repo.Posts.FindById(id)
+	if post.Id == "" || err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Get a previous vote if one exists
+	vote, err := repo.Votes.FindByPostAndUser(id, user.Id)
+
+	// If the user has voted already on this post then change the type
+	if err == nil {
+		if voteType == models.VoteTypeLike {
+			if vote.Type == models.VoteTypeDislike {
+				post.Likes += 1
+				post.Dislikes -= 1
+			} else {
+				post.Likes -= 1
+				repo.Votes.Delete(vote.Id)
+				repo.Posts.Update(post)
+
+				url, _ := app.Router.Get("posts_view").URL("id", post.Id)
+				http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+				return
+			}
+		} else {
+			if vote.Type == models.VoteTypeLike {
+				post.Likes -= 1
+				post.Dislikes += 1
+			} else {
+				post.Dislikes -= 1
+				repo.Votes.Delete(vote.Id)
+				repo.Posts.Update(post)
+
+				url, _ := app.Router.Get("posts_view").URL("id", post.Id)
+				http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
+				return
+			}
+		}
+		if post.Likes < 0 {
+			post.Likes = 0
+		}
+		if post.Dislikes < 0 {
+			post.Dislikes = 0
+		}
+
+		vote.Type = voteType
+		repo.Votes.Update(vote)
+		repo.Posts.Update(post)
+	} else {
+		// Otherwise create a new vote
+		vote = models.Vote{
+			Post: id,
+			User: user.Id,
+			Type: voteType,
+		}
+		if voteType == models.VoteTypeLike {
+			post.Likes += 1
+		} else {
+			post.Dislikes += 1
+		}
+
+		repo.Votes.Store(vote)
+		repo.Posts.Update(post)
+	}
+
+	url, _ := app.Router.Get("posts_view").URL("id", post.Id)
+	http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)
 }
 
 func (c *PostController) NewPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -160,8 +264,6 @@ func (c *PostController) NewPostHandler(w http.ResponseWriter, r *http.Request) 
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-
-			spew.Dump(post)
 
 			url, _ := app.Router.Get("posts_view").URL("id", post.Id)
 			http.Redirect(w, r, url.String(), http.StatusTemporaryRedirect)

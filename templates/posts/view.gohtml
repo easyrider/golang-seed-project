@@ -12,14 +12,14 @@
                     </button>
                 </div>
                 <div class="post-vote-buttons media-buttons btn-group btn-group-vertical pull-left">
-                    <button type="button" class="downvote-btn btn btn-default">
+                    <a href="{{ route .Router "posts_vote" "id" .Post.Id "type" "like" }}" class="downvote-btn btn btn-default">
                         <span class="icomoon icomoon-thumbs-up-5"></span>
                         <span class="badge">{{ .Post.Likes }}</span>
-                    </button>
-                    <button type="button" class="upvote-btn btn btn-default">
+                    </a>
+                    <a href="{{ route .Router "posts_vote" "id" .Post.Id "type" "dislike" }}" class="upvote-btn btn btn-default">
                         <span class="icomoon icomoon-thumbs-up-6"></span>
                         <span class="badge">{{ .Post.Dislikes }}</span>
-                    </button>
+                    </a>
                 </div>
                 <div class="media-body post-body">
                     <a href="/view/{{ .Post.Id }}" class="post-heading media-heading"><h4>{{ .Post.Title }}</h4></a>
@@ -40,14 +40,7 @@
                 {{else}}{{end}}
             </div>
             <div class="well comments">
-                <form class="comment-form top-comment-form" role="form" action="{{ route .Router "posts_submit_comment" }}" method="POST">
-                    <div class="form-group">
-                        <label for="content">Comment</label>
-                        <textarea class="form-control" name="content" id="content" data-provide="markdown" rows="10"></textarea>
-                    </div>
-                    <input type="hidden" name="post" value="{{.Post.Id}}" />
-                    <button type="submit" class="btn btn-default">Submit</button>
-                </form>
+
                 <hr />
                 <ul id="comment-list"class="comment-list media-list">
                     {{range .Comments}}

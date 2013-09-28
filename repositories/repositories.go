@@ -8,6 +8,7 @@ var (
 	Comments *commentRepository
 	Posts    *postRepository
 	Users    *userRepository
+	Votes    *voteRepository
 )
 
 type Repository interface {

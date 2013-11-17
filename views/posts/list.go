@@ -1,7 +1,7 @@
 package posts
 
 import (
-	"github.com/dancannon/gonews/models"
+	"github.com/sagittaros/gonews/models"
 	"github.com/gorilla/mux"
 	"math"
 )

@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	. "github.com/dancannon/gonews/models"
+	. "github.com/sagittaros/gonews/models"
 )
 
 var (

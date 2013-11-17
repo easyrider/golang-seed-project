@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	r "github.com/dancannon/gorethink"
+	r "github.com/sagittaros/gorethink"
 )
 
 // Generic sorting functions

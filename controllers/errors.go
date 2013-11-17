@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/dancannon/gonews/app"
+	"github.com/sagittaros/gonews/app"
 	"net/http"
 )
 

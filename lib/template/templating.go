@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"code.google.com/p/sadbox/zap"
 	"fmt"
-	"github.com/dancannon/gonews/lib/log"
+	"github.com/sagittaros/gonews/lib/log"
 	"github.com/gorilla/mux"
 	htmlTemplate "html/template"
 	"net/http"

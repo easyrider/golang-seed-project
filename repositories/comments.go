@@ -1,8 +1,8 @@
 package repositories
 
 import (
-	. "github.com/dancannon/gonews/models"
-	r "github.com/dancannon/gorethink"
+	. "github.com/sagittaros/gonews/models"
+	r "github.com/sagittaros/gorethink"
 )
 
 type commentRepository struct {

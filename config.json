@@ -3,12 +3,12 @@
     "server":[
         {
             "host":"localhost",
-            "target":"/home/daniel/golang/src/github.com/dancannon/gonews/main.go",
+            "target":"/home/daniel/golang/src/github.com/sagittaros/gonews/main.go",
             "resources":{
                 "ignore":"static*",
-                "paths":["/home/daniel/golang/src/github.com/dancannon/gonews/views"]
+                "paths":["/home/daniel/golang/src/github.com/sagittaros/gonews/views"]
              },
-            "bin":"/home/daniel/golang/src/github.com/dancannon/gonews/main",
+            "bin":"/home/daniel/golang/src/github.com/sagittaros/gonews/main",
             "default":true
         }
     ]

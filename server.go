@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/dancannon/gonews/app"
-	"github.com/dancannon/gonews/controllers"
-	"github.com/dancannon/gonews/lib/log"
+	"github.com/sagittaros/gonews/app"
+	"github.com/sagittaros/gonews/controllers"
+	"github.com/sagittaros/gonews/lib/log"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"net/http"

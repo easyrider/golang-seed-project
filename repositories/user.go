@@ -10,7 +10,14 @@ type userRepository struct {
 
 func (repo *userRepository) FindById(id string) (User, error) {
 	var user User
-	err := r.Table("users").Get(id).RunRow(session).Scan(&user)
+	row, err := r.Table("users").Get(id).RunRow(session)
+	if err != nil {
+		// error
+	}
+	if row.IsNil() {
+		// nothing was found
+	}
+	err = row.Scan(&user)
 
 	return user, err
 }
@@ -39,8 +46,8 @@ func (repo *userRepository) FindByUsername(username string) (User, error) {
 	var user User
 	query := r.Table("users").GetAllByIndex("Username", username)
 
-	row := query.RunRow(session)
-	err := row.Scan(&user)
+	row, err := query.RunRow(session)
+	err = row.Scan(&user)
 
 	return user, err
 }

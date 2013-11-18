@@ -10,7 +10,14 @@ type commentRepository struct {
 
 func (repo *commentRepository) FindById(id string) (Comment, error) {
 	var comment Comment
-	err := r.Table("comments").Get(id).RunRow(session).Scan(&comment)
+	row, err := r.Table("comments").Get(id).RunRow(session)
+	if err != nil {
+		// error
+	}
+	if row.IsNil() {
+		// nothing was found
+	}
+	err = row.Scan(&comment)
 
 	return comment, err
 }

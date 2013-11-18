@@ -10,8 +10,14 @@ type postRepository struct {
 
 func (repo *postRepository) FindById(id string) (Post, error) {
 	var post Post
-	err := r.Table("posts").Get(id).RunRow(session).Scan(&post)
-
+	row, err := r.Table("posts").Get(id).RunRow(session)
+	if err != nil {
+		// error
+	}
+	if row.IsNil() {
+		// nothing was found
+	}
+	err = row.Scan(&post)
 	return post, err
 }
 
@@ -44,7 +50,14 @@ func (repo *postRepository) FindTopByPage(page int, count int) ([]Post, error) {
 		})
 	})
 	query = query.Skip((page - 1) * count).Limit(count)
-	err := query.RunRow(session).Scan(&posts)
+	row, err := query.RunRow(session)
+	if err != nil {
+		// error
+	}
+	if row.IsNil() {
+		// nothing was found
+	}
+	err = row.Scan(&posts)
 	// if err != nil {
 	// 	return posts, err
 	// }

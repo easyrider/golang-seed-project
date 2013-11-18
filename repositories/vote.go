@@ -10,16 +10,29 @@ type voteRepository struct {
 
 func (repo *voteRepository) FindById(id string) (Vote, error) {
 	var vote Vote
-	err := r.Table("votes").Get(id).RunRow(session).Scan(&vote)
-
+	row, err := r.Table("votes").Get(id).RunRow(session)
+	if err != nil {
+		// error
+	}
+	if row.IsNil() {
+		// nothing was found
+	}
+	err = row.Scan(&vote)
 	return vote, err
 }
 
 func (repo *voteRepository) FindByEntityAndUser(post, user string) (Vote, error) {
 	var vote Vote
-	err := r.Table("votes").Filter(
+	row, err := r.Table("votes").Filter(
 		r.Row.Field("Entity").Eq(post).And(r.Row.Field("User").Eq(user)),
-	).RunRow(session).Scan(&vote)
+	).RunRow(session)
+	if err != nil {
+		// error
+	}
+	if row.IsNil() {
+		// nothing was found
+	}
+	err = row.Scan(&vote)
 
 	return vote, err
 }
